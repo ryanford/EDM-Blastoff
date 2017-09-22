@@ -17,16 +17,18 @@ function _init()
   time_now=time()
   dt=0
   step=0
-  keys = {".","o","x"}
+  keys = {".","o","x","r"}
+  last_pattern = {1,1,1,1,1,1,1,1}
   pattern = {1,1,2,1,1,1,3,1}
+  next_pattern = {1,2,1,2,3,1,1,2}
   pattern_step = 0
 end
 
 function _update()
   sync_music()
+  update_pattern()
   update_time()
   update_player()
-  update_pattern()
   pattern_input()
 end
 
@@ -34,6 +36,7 @@ function _draw()
   cls()
   spr(unpack(p.sprite))
   print(p.score, 0, 16, 12)
+  print(pattern_step, 0, 24, 12)
   draw_pattern()
 end
 
@@ -83,19 +86,49 @@ function pattern_input()
   end
 end
 
+switched_patterns = true
 function update_pattern()
   pattern_step = flr(step/16)
+  if pattern_step == 0  and not switched_patterns then
+    switched_patterns = true
+    last_pattern = pattern
+    pattern = next_pattern
+    next_pattern = generate_pattern()
+  end
+  if (pattern_step == 1) switched_patterns = false
+end
+
+function generate_pattern()
+  return {1,2,1,3,2,2,1,3}
 end
 
 function draw_pattern()
   rect(22,0,32,8,6)
-  print(keys[pattern[((pattern_step - 3) % 8 ) + 1]], 0, 2, 1)
-  print(keys[pattern[((pattern_step - 2) % 8 ) + 1]], 8, 2, 5)
-  print(keys[pattern[((pattern_step - 1) % 8 ) + 1]], 16, 2, 5)
+  print(keys[
+    pattern[(pattern_step - 3) + 1] or 
+    last_pattern[((pattern_step - 3) % 8 ) + 1]],
+    0, 2, 1)
+  print(keys[
+    pattern[((pattern_step - 2)) + 1] or 
+    last_pattern[((pattern_step - 2) % 8 ) + 1]],
+    8, 2, 5)
+  print(keys[
+    pattern[((pattern_step - 1)) + 1] or 
+    last_pattern[((pattern_step - 1) % 8 ) + 1]],
+    16, 2, 5)
   print(keys[pattern[(pattern_step % 8) + 1]], 26, 2, 7)
-  print(keys[pattern[((pattern_step + 1) % 8 ) + 1]], 36, 2, 5)
-  print(keys[pattern[((pattern_step + 2) % 8 ) + 1]], 44, 2, 5)
-  print(keys[pattern[((pattern_step + 3) % 8 ) + 1]], 52, 2, 1)
+  print(keys[
+    pattern[((pattern_step + 1)) + 1] or
+    next_pattern[((pattern_step + 1) % 8 ) + 1]],
+    36, 2, 5)
+  print(keys[
+    pattern[((pattern_step + 2)) + 1] or
+    next_pattern[((pattern_step + 2) % 8 ) + 1]],
+    44, 2, 5)
+  print(keys[
+    pattern[((pattern_step + 3)) + 1] or
+    next_pattern[((pattern_step + 3) % 8 ) + 1]],
+    52, 2, 1)
 end
 
 function sync_music()
