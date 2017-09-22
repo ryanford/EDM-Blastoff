@@ -16,7 +16,7 @@ function _init()
   time_now=time()
   dt=0
   step=0
-  keys = {".","—","Ž"}
+  keys = {".","x","o"}
   pattern = {1,1,3,1,1,1,2,1}
   pattern_step = 0
 end
