@@ -16,17 +16,22 @@ function _init()
   time_now=time()
   dt=0
   step=0
+  keys = {".","—",""}
+  pattern = {1,1,3,1,1,1,2,1}
+  pattern_step = 0
 end
 
 function _update()
   sync_music()
   update_time()
   update_player()
+  update_pattern()
 end
 
 function _draw()
   cls()
   spr(unpack(p.sprite))
+  draw_pattern()
 end
 
 function update_time()
@@ -51,6 +56,21 @@ function update_player()
   p.x+=1*p.dir
   if (p.x%32==0) p.dir=0
   p.sprite[2]=p.x
+end
+
+function update_pattern()
+  pattern_step = flr(step/16)
+end
+
+function draw_pattern()
+  print(keys[pattern[((pattern_step - 3) % 8 ) + 1]], 0, 0, 1)
+  print(keys[pattern[((pattern_step - 2) % 8 ) + 1]], 8, 0, 5)
+  print(keys[pattern[((pattern_step - 1) % 8 ) + 1]], 16, 0, 5)
+  print(keys[pattern[(pattern_step % 8) + 1]], 24, 0, 7)
+  print(keys[pattern[((pattern_step + 1) % 8 ) + 1]], 32, 0, 5)
+  print(keys[pattern[((pattern_step + 2) % 8 ) + 1]], 40, 0, 5)
+  print(keys[pattern[((pattern_step + 3) % 8 ) + 1]], 48, 0, 1)
+  -- print(pattern_step + 1, 64, 64, 7 )
 end
 
 function sync_music()
