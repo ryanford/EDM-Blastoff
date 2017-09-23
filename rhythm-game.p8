@@ -18,6 +18,7 @@ function _init()
   -- these defaults below will get removed when menu is made
   state.update=active_update
   state.draw=active_draw
+  timeout=0
   lanes={32,64,96}
   obstacles={}
   smoke={}
