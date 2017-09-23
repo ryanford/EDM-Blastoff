@@ -1,7 +1,11 @@
 pico-8 cartridge // http://www.pico-8.com
 version 8
 __lua__
+cartdata("spacerhythmgame")
+-- uncomment this shit to get a new high score everytime
+-- dset(0,0)
 function _init()
+  highscore = dget(0)
   state={}
   if active then
     state.update=active_update
@@ -33,7 +37,9 @@ function start_game()
   p.lane=2
   p.power=3
 
+  partymode = false
   score=0
+  streak=0
   active=false
   -- these defaults below will get removed when menu is made
   state.update=state.update or intro_update
@@ -43,7 +49,9 @@ function start_game()
   obstacles={}
   smoke={}
   stars = {}
+  fireworks = {}
   prop = {}
+  powerups = {}
   for i=1,128 do
     add(stars,{
       x = rnd(128),
@@ -56,7 +64,7 @@ function start_game()
   time_now=time()
   dt=0
   step=0
-  keys = {".","o","x","u"}
+  keys = {".","z","x","u"}
   last_pattern = {1,1,1,1,1,1,1,1}
   pattern = {1,1,2,1,1,1,3,4}
   next_pattern = {1,2,1,2,3,1,1,2}
@@ -84,6 +92,15 @@ function active_update()
   if p.power <= 0 then
     gameover()
   end
+  -- if step % 32 == 8 and streak > 25 then
+  --   spawn_fireworks(rnd(120) + 4, rnd(32))
+  -- end
+  -- if step % 128 == 1 then
+  --   spawn_powerup()
+  -- end
+
+  party_mode()
+  update_powerups()
   sync_music()
   update_pattern()
   update_time()
@@ -98,13 +115,43 @@ function active_update()
   check_collisions()
   pattern_input()
   check_missed_beat()
-  update_stars()
+  update_fireworks()
+  update_stars(p.power/2)
+end
+
+function party_mode()
+  music_track = 0
+  partymode = false
+  if streak > 16 then
+    partymode = true
+    music_track = 1
+    if step % 32 == 8  then
+      spawn_fireworks(rnd(120) + 4, rnd(32))
+    end
+    if step % 128 == 1 then
+      spawn_powerup()
+    end
+  end
+end
+
+function draw_party_mode()
+  local str = {"p","a",'r',"t","y","m","o","d","e","!","!","!"}
+  local i = 1
+  foreach(str, function(c)
+    print_outline(c,31+(i*5),20+rnd(2),7,flr(rnd(8)) + 8)
+    i += 1
+  end)
 end
 
 function active_draw()
   cls()
   screenshake()
   draw_stars()
+  if partymode then
+    draw_party_mode()
+  end
+  draw_fireworks()
+  draw_powerups()
   draw_obstacles()
   draw_smoke()
   draw_prop()
@@ -114,18 +161,40 @@ function active_draw()
 end
 
 function gameover_update()
+  update_stars(.2)
+  update_fireworks()
+  update_time()
   if (btn(5) and timeout>1) _init()
   timeout+=dt
 end
 
 function gameover_draw()
-  print_outline("game over",48,56,7,0)
-  if timeout>1 then
-    print_outline("press x to restart",28,72,7,0)
+  cls()
+  draw_stars()
+  print_outline("game over",28,56,7,0)
+  if new_highscore then
+    if step % 32 == 8 then
+      spawn_fireworks(rnd(120) + 4, rnd(32))
+    end
+    print_outline("new high score!!!",28,68, 12, 0)
+    print_outline("score: "..flr(score),28,80,12, 0)
+  else
+    print_outline("score: "..flr(score),28,68,7, 0)
+    print_outline("high score: "..highscore,28,80,7, 0)
   end
+  if timeout>1 then
+    print_outline("press x to restart",28,92,7,0)
+  end
+  draw_fireworks()
 end
 
 function gameover()
+  new_highscore = false
+  if highscore < score then
+    highscore = flr(score)
+    new_highscore = true
+    dset(0,highscore)
+  end
   timeout = 0
   active=true
   state.update=gameover_update
@@ -206,6 +275,40 @@ function update_player()
   if (p.y<forward_level) p.y+=0.5
 end
 
+function collide_powerups()
+end
+
+function spawn_powerup()
+  add(powerups,{
+    x = lanes[flr(rnd(3))+1],
+    y = -64,
+    spd = 1,
+    c = 12,
+  })
+end
+function timed_powerups()
+
+end
+
+function update_powerups()
+  foreach(powerups,function(p)
+    p.y += p.spd
+    if step % 16 == 1 then
+      p.c = flr(rnd(8)) + 8
+    end
+    if step % 32 == 8 then
+      spawn_fireworks(p.x,p.y,15)
+    end
+  end)
+end
+
+function draw_powerups()
+  foreach(powerups,function(p)
+    circ(p.x,p.y,3,5)
+    circfill(p.x,p.y,2,p.c)
+  end)
+end
+
 function spawn_obstacle()
   local obstacle={}
   obstacle.x=lanes[flr(rnd(3))+1]
@@ -241,9 +344,10 @@ function draw_obstacles()
   end
 end
 
-function update_stars()
+function update_stars(x)
+  if not x then x = 1 end
   foreach(stars,function(s)
-    s.y += s.s
+    s.y += s.s * x
     s.y = s.y%128
   end)
 end
@@ -291,8 +395,47 @@ function draw_smoke()
   end
 end
 
+function spawn_fireworks(x,y,size)
+  if not size then size = 35 end
+  for i=size,1,-1 do
+    add(fireworks,{
+      x = x,
+      y = y,
+      dx = rnd(3) - 1.5,
+      dy = rnd(3) - 1.5,
+      c = flr(rnd(8)) + 8,
+      l = rnd(100)
+    })
+  end
+end
+
+function draw_fireworks()
+  foreach(fireworks,function(f)
+    pset(f.x,f.y,f.c)
+  end)
+end
+
+function update_fireworks()
+  foreach(fireworks,function(f)
+    f.x += f.dx
+    f.y += f.dy
+    f.dy += .05
+    f.l -= 1
+    if f.l < 0 then
+      del(fireworks,f)
+    end
+  end)
+end
+
 function check_collisions()
-  if (#obstacles==0) return
+  if (#obstacles==0 and #powerups==0) return
+  foreach(powerups,function(pup)
+    if distance_between(pup.x,pup.y,p.x+4,p.y+16) < 16 and pup.y > 0then
+      score += 1000
+      spawn_fireworks(pup.x,pup.y,100)
+      del(powerups,pup)
+    end
+  end)
   for obstacle in all(obstacles) do
     if distance_between(obstacle.x,obstacle.y+16,p.x+4,p.y+4)<16 and obstacle.y>0 then
       for i=#obstacles,1,-1 do
@@ -315,6 +458,7 @@ function pattern_input()
       if music_track == 1 then 
         sounds = {17,18}
       end
+      streak += 1
       sfx(sounds[flr(rnd(#sounds)+1)])
       p.power+= .2
     else
@@ -329,6 +473,7 @@ function pattern_input()
       if music_track == 1 then 
         sounds = {19,20}
       end
+      streak += 1
       sfx(sounds[flr(rnd(#sounds)+1)])
       p.power += .2
     else
@@ -343,6 +488,7 @@ function pattern_input()
       if music_track == 1 then 
         sounds = {21}
       end
+      streak += 1
       sfx(sounds[flr(rnd(#sounds)+1)])
       p.power += .2
     else
@@ -356,6 +502,8 @@ function pattern_input()
 end
 
 function pattern_mistake()
+  powerups = {}
+  streak = 0
   shaketimer = 10
   sfx(12)
   p.power-= 1
@@ -440,9 +588,9 @@ function sync_music()
     music(music_track)
     loops += 1
   end
-  if loops > 13 then
-    music_track = 1
-  end
+  -- if loops > 13 then
+  --   music_track = 1
+  -- end
   if loops % 8 == 3  and not sfx_started then
     sfx_started = true
     sfx(4)
@@ -453,11 +601,14 @@ function sync_music()
 end
 
 function update_score()
-  score+=1*(p.power-1)*dt
+  score+=10*(p.power-1)*dt
 end
 
 function draw_score()
   print("score: " .. flr(score),0,0,7)
+  if streak > 10 then
+    print("streak: " .. streak,0,8,5)
+  end
 end
 
 function print_outline(string, x, y, color1, color2)
@@ -650,7 +801,7 @@ __sfx__
 011000000c0553c6060c055000063c626306060c0550000600006000060c055000063c626000060c0550000600006000060c055000063c626000060c0550000600006000060d055000063c626000060d05500006
 001000001b0501d0501e050220502200022050220002205021050200501f0501e050000001e050000001e0501d0501c0501b0501a050000001a050000001a0501905019050000001905000000190500000019050
 014000002b0112b7112b7212b7212b7312b7312b7412b741277512775127751277512775127751277512775129751297512975129751297512975129751297512574125741257312573125721257212571125711
-011000000c2503c6060c250000063c62630606192500c25100006000060a250000063c626182500a2500000618250192500a251000063c626000060a2500000608250000061b251082503c626000060725000006
+011000000c2143c6060c230000063c62630606192300c23100006000060a230000063c626182300a2300000618224192300a231000063c626000060a2300000608214000061b231082303c626000060723000006
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
