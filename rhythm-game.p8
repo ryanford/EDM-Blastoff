@@ -38,11 +38,10 @@ function _draw()
 end
 
 function active_update()
--- commented game low-score to debug
-  -- p.score = min(p.score,5)
-  -- if p.score <= 0 then
-  --   gameover()
-  -- end
+  p.score = min(p.score,5)
+  if p.score <= 0 then
+    gameover()
+  end
   sync_music()
   update_pattern()
   update_time()
@@ -158,7 +157,6 @@ function pattern_input()
     end
     button_pressed = true
     btn_timer = time_now + 1
-    printh("btnpress "..step)
   end
   if btnp(5) then
     if current_step == 3 then
@@ -171,14 +169,10 @@ function pattern_input()
     end
     button_pressed = true
     btn_timer = time_now + 1
-    printh("btnpress "..step)
   end
   p.score = min(p.score,5)
 end
 
--- this function sometimes gives false negtives..
--- as in i press a button, but it still gives an error as if i missed it.
--- i think it's a timing issue, but i'm not sure
 -- these global vars can move elsewhere at some point, but thought it would be 
 -- clearer if they were here for now.
 last_step = 1
@@ -191,14 +185,12 @@ function check_missed_beat()
     last_pattern[((pattern_step - 1) % 8 ) + 1]
   if step % 16 == 1 then
     if (last_step == 2 or last_step == 3) and not button_pressed then
-      printh("error "..step)
       sfx(12)
       p.score -=1
     end
     if btn_timer < time_now then
       button_pressed = false
     end
-    printh("btnpress set false ".. step)
   end
 end
 
