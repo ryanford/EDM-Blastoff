@@ -496,7 +496,6 @@ function pattern_input()
     end
     button_pressed = true
     btn_timer = time_now + 1
-    --printh("btnpress "..step)
   end
   p.power = min(p.power,3)
 end
@@ -520,13 +519,12 @@ function check_missed_beat()
     pattern[((pattern_step - 1)) + 1] or 
     last_pattern[((pattern_step - 1) % 8 ) + 1]
   if step % 16 == 1 then
-    if (last_step == 2 or last_step == 3) and not button_pressed then
+    if (last_step == 2 or last_step == 3 or last_step == 4) and not button_pressed then
      pattern_mistake()
     end
     if btn_timer < time_now then
       button_pressed = false
     end
-    --printh("btnpress set false ".. step)
   end
 end
 
