@@ -16,8 +16,9 @@ function _init()
   score=0
   state={}
   -- these defaults below will get removed when menu is made
-  state.update=active_update
-  state.draw=active_draw
+  state.update=intro_update
+  state.draw=intro_draw
+  timeout=0
   lanes={32,64,96}
   obstacles={}
   smoke={}
@@ -49,6 +50,21 @@ end
 
 function _draw()
   state.draw()
+end
+
+function intro_update()
+  if btn(5) and timeout>=1 then
+    state.update=active_update
+    state.draw=active_draw
+    timeout=0
+  end
+  timeout+=1/30
+end
+
+function intro_draw()
+  cls()
+  print_outline("spase gam",48,56,7,0)
+  print_outline("press x to start",32,64,7,0)
 end
 
 function active_update()
@@ -86,13 +102,13 @@ function active_draw()
 end
 
 function gameover_update()
-  if (btn(5) and timeout>2) _init()
+  if (btn(5) and timeout>1) _init()
   timeout+=dt
 end
 
 function gameover_draw()
   print_outline("game over",48,56,7,0)
-  if timeout>2 then
+  if timeout>1 then
     print_outline("press x to restart",28,72,7,0)
   end
 end
