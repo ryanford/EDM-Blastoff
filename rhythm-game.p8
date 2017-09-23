@@ -85,10 +85,15 @@ function active_draw()
 end
 
 function gameover_update()
+  if (btn(5) and timeout>2) _init()
+  timeout+=dt
 end
 
 function gameover_draw()
-  print("game over",56,64,7)
+  print_outline("game over",48,56,7,0)
+  if timeout>2 then
+    print_outline("press x to restart",28,72,7,0)
+  end
 end
 
 function gameover()
@@ -405,6 +410,18 @@ end
 
 function draw_score()
   print("score: " .. flr(score),0,0,7)
+end
+
+function print_outline(string, x, y, color1, color2)
+  print(string, x-1, y+1, color1)
+  print(string, x-1, y, color1)
+  print(string, x-1, y-1, color1)
+  print(string, x, y-1, color1)
+  print(string, x, y+1, color1)
+  print(string, x+1, y+1, color1)
+  print(string, x+1, y-1, color1)
+  print(string, x+1, y, color1)
+  print(string, x, y, color2)
 end
 
 function unpack(t,from,to)
