@@ -17,6 +17,7 @@ function _init()
   state.draw=active_draw
   lanes={32,64,96}
   obstacles={}
+  smoke={}
 
   prev_time=time()
   time_now=time()
@@ -48,6 +49,8 @@ function active_update()
   update_time()
   timed_spawns()
   update_obstacles()
+  update_smoke()
+  spawn_smoke()
   update_player()
   check_collisions()
   pattern_input()
@@ -57,6 +60,7 @@ end
 function active_draw()
   cls()
   draw_obstacles()
+  draw_smoke()
   spr(unpack(p.sprite))
   print(p.score, 0, 16, 12)
   print(pattern_step, 0, 24, 12)
@@ -126,16 +130,48 @@ end
 function draw_obstacles()
   for obstacle in all(obstacles) do
     sspr(16,0,32,32,obstacle.x-16,obstacle.y)
-    --[[ collision debugging
-    circ(obstacle.x,obstacle.y+16,14,7)
-    line(obstacle.x,obstacle.y+16,p.x+4,p.y+4,9)
-    --]]
+  end
+end
+
+function spawn_smoke()
+  for obstacle in all(obstacles) do
+    if obstacle.spd < 120 then return end
+    local particle={}
+    local colors={2,4,9}
+    particle.x=obstacle.x+rnd(16)*sgn(flr(rnd(2))*-1)
+    particle.y=obstacle.y+rnd(16)*-1
+    particle.col=colors[flr(rnd(#colors))+1]
+    particle.size=flr(rnd(6))+1
+    particle.age=0
+    particle.max_age=30+rnd(10)
+    particle.dx=(rnd(0.5))
+    add(smoke,particle)
+  end
+end
+
+function update_smoke()
+  for i=#smoke,1,-1 do
+    local particle=smoke[i]
+    if particle.age>particle.max_age then
+      del(smoke,particle)
+    end
+    if particle.age<particle.max_age then
+      particle.size-=0.5
+      particle.size=max(particle.size,0)
+    end
+    particle.x+=sgn(particle.x)*-particle.dx
+    particle.age+=1
+  end
+end
+
+function draw_smoke()
+  for particle in all(smoke) do
+    circfill(particle.x,particle.y,particle.size,particle.col)
   end
 end
 
 function check_collisions()
   if (#obstacles==0) return
-  printh(#obstacles)
   for obstacle in all(obstacles) do
     if distance_between(obstacle.x,obstacle.y+16,p.x+4,p.y+4)<16 and obstacle.y>0 then
       for i=#obstacles,1,-1 do
@@ -163,7 +199,7 @@ function pattern_input()
     end
     button_pressed = true
     btn_timer = time_now + 1
-    printh("btnpress "..step)
+    --printh("btnpress "..step)
   end
   if btnp(5) then
     if current_step == 3 then
@@ -176,7 +212,7 @@ function pattern_input()
     end
     button_pressed = true
     btn_timer = time_now + 1
-    printh("btnpress "..step)
+    --printh("btnpress "..step)
   end
   p.score = min(p.score,5)
 end
