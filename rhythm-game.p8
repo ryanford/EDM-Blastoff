@@ -18,7 +18,17 @@ function _init()
   lanes={32,64,96}
   obstacles={}
   smoke={}
+  stars = {}
+  for i=1,128 do
+    add(stars,{
+      x = rnd(128),
+      y = rnd(128),
+      s = rnd(2)+1
+    })
+  end
 
+  m_x = 0
+  m_y = 0
   prev_time=time()
   time_now=time()
   dt=0
@@ -54,10 +64,12 @@ function active_update()
   check_collisions()
   pattern_input()
   check_missed_beat()
+  update_stars()
 end
 
 function active_draw()
   cls()
+  draw_stars()
   draw_obstacles()
   draw_smoke()
   spr(unpack(p.sprite))
@@ -104,7 +116,7 @@ function update_player()
   else
     p.x += (lanes[p.lane] - p.x) * 0.3
   end
-  p.sprite[2]=p.x
+  p.sprite[2]=p.x - 8
 end
 
 function spawn_obstacle()
@@ -135,6 +147,19 @@ function draw_obstacles()
   for obstacle in all(obstacles) do
     sspr(64,0,32,96,obstacle.x-16,obstacle.y)
   end
+end
+
+function update_stars()
+  foreach(stars,function(s)
+    s.y += s.s
+    s.y = s.y%128
+  end)
+end
+
+function draw_stars()
+  foreach(stars,function(s)
+    pset(s.x + m_x ,s.y + m_y , 1)
+  end)
 end
 
 function spawn_smoke()
