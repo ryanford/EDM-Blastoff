@@ -22,6 +22,7 @@ function _init()
   obstacles={}
   smoke={}
   stars = {}
+  prop = {}
   for i=1,128 do
     add(stars,{
       x = rnd(128),
@@ -62,6 +63,8 @@ function active_update()
   update_smoke()
   spawn_smoke()
   update_player()
+  spawn_prop()
+  update_prop()
   update_score()
   check_collisions()
   pattern_input()
@@ -75,6 +78,7 @@ function active_draw()
   draw_stars()
   draw_obstacles()
   draw_smoke()
+  draw_prop()
   draw_ship()
   draw_score()
   draw_pattern()
@@ -117,6 +121,32 @@ function draw_ship()
   p.sprite[2] = p.x + m_x + shake - 8
   p.sprite[3] = p.y + m_y + (3 * (3 - p.power))
   spr(unpack(p.sprite))
+end
+
+function spawn_prop()
+  add(prop, {
+    x = p.x + rnd(8) - 4,
+    y = p.y + (3 * (3 - p.power)),
+    s = rnd(3) + 2,
+    c = flr(rnd(8)) + 8,
+    l = rnd(6) + 10
+  })
+end
+
+function update_prop()
+  foreach(prop, function(p)
+    p.y += p.s
+    p.l -= 1
+    if p.l < 0 then
+      del(prop, p)
+    end
+  end)
+end
+
+function draw_prop()
+  foreach(prop, function(p)
+    pset(p.x, p.y, p.c)
+  end)
 end
 
 function update_player()
