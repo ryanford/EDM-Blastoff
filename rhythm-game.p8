@@ -158,6 +158,7 @@ function active_draw()
   draw_ship()
   draw_score()
   draw_pattern()
+  draw_powermeter()
 end
 
 function gameover_update()
@@ -467,7 +468,7 @@ function pattern_input()
       pattern_mistake()
     end
     button_pressed = true
-    btn_timer = time_now + 1
+    btn_timer = time_now  + .5
   end
   if btnp(5) then
     if current_step == 3 then
@@ -482,7 +483,7 @@ function pattern_input()
       pattern_mistake()
     end
     button_pressed = true
-    btn_timer = time_now + 1
+    btn_timer = time_now + .5
   end
   if btnp(2) then
     if current_step == 4 then
@@ -497,7 +498,7 @@ function pattern_input()
       pattern_mistake()
     end
     button_pressed = true
-    btn_timer = time_now + 1
+    btn_timer = time_now  + .5
   end
   p.power = min(p.power,3)
 end
@@ -524,9 +525,9 @@ function check_missed_beat()
     if (last_step == 2 or last_step == 3 or last_step == 4) and not button_pressed then
      pattern_mistake()
     end
-    if btn_timer < time_now then
-      button_pressed = false
-    end
+  end
+  if btn_timer < time_now then
+    button_pressed = false
   end
 end
 
@@ -579,6 +580,10 @@ function draw_pattern()
     pattern[((pattern_step + 3)) + 1] or
     next_pattern[((pattern_step + 3) % 8 ) + 1]],
     52 + xoffset, 4 + yoffset, 1)
+end
+
+function draw_powermeter()
+  rectfill(33,46,37+(p.power*58/3),47,3)
 end
 
 loops = 0
