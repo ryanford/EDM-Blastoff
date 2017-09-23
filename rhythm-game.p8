@@ -9,7 +9,7 @@ function _init()
   p.spd=2
   p.sprite={1,p.x,p.y}
   p.lane=2
-  p.score=0
+  p.score=4
 
   state={}
   -- these defaults below will get removed when menu is made
@@ -38,6 +38,11 @@ function _draw()
 end
 
 function active_update()
+-- commented game low-score to debug
+  -- p.score = min(p.score,5)
+  -- if p.score <= 0 then
+  --   gameover()
+  -- end
   sync_music()
   update_pattern()
   update_time()
@@ -46,6 +51,7 @@ function active_update()
   update_player()
   check_collisions()
   pattern_input()
+  check_missed_beat()
   printh(#obstacles) --collision debugging
 end
 
@@ -65,6 +71,10 @@ function gameover_draw()
   print("game over",56,64,7)
 end
 
+function gameover()
+  state.update=gameover_update
+  state.draw=gameover_draw
+end
 
 function update_time()
   prev_time=time_now
@@ -123,36 +133,63 @@ end
 function check_collisions()
   if (#obstacles==0) return
   for obstacle in all(obstacles) do
-    if distance_between(obstacle.x,obstacle.y+16,p.x,p.y+4)<16 then
+    if distance_between(obstacle.x,obstacle.y+16,p.x,p.y+4)<8 then
       for i=#obstacles,1,-1 do
         del(obstacles,obstacles[i])
       end
-      state.update=gameover_update
-      state.draw=gameover_draw
+      gameover()
     end
   end
 end
 
+function distance_between(x1,y1,x2,y2)
+  return sqrt((y2-y1)^2+(x2-x1)^2)
+end
+
 function pattern_input()
-  local current_step = pattern[pattern_step + 1]
+  current_step = pattern[pattern_step + 1]
   if btnp(4) then
     if current_step == 2 then
       sfx(10)
-      p.score += 1
+      p.score += .5
     else
       sfx(12)
       p.score -= 1
     end
+    button_pressed = true
   end
   if btnp(5) then
     if current_step == 3 then
       local sounds = {11, 13}
       sfx(sounds[flr(rnd(2)+1)])
-      p.score += 1
+      p.score += .5
     else
       sfx(12)
       p.score -= 1
     end
+    button_pressed = true
+  end
+  p.score = min(p.score,5)
+end
+
+-- this function sometimes gives false negtives..
+-- as in I press a button, but it still gives an error as if I missed it.
+-- I think it's a timing issue, but I'm not sure
+-- these global vars can move elsewhere at some point, but thought it would be 
+-- clearer if they were here for now.
+last_step = 1
+current_step = 1
+button_pressed = false
+function check_missed_beat()
+  last_step = 
+    pattern[((pattern_step - 1)) + 1] or 
+    last_pattern[((pattern_step - 1) % 8 ) + 1]
+  if step % 16 == 1 then
+    if (last_step == 2 or last_step == 3) and not button_pressed then 
+      sfx(12)
+      p.score -=1
+    end
+    button_pressed = false
   end
 end
 
@@ -172,41 +209,43 @@ function generate_pattern()
   return {1,2,1,flr(rnd(3)+1),2,flr(rnd(3)+1),1,3}
 end
 
+-- I know it's ugly, but at this point I don't care much lol.. 
+-- it displays correctly.
 function draw_pattern()
-  rect(22,0,32,8,6)
+  local xoffset = 37
+  local yoffset = 32
+  rectfill(xoffset-4, yoffset-2, xoffset + 58, yoffset+12, 0)
+  rect(xoffset-4, yoffset-2, xoffset + 58, yoffset+12, 1)
+  rect(22+xoffset,0+yoffset,32+xoffset,8+yoffset,6)
   print(keys[
     pattern[(pattern_step - 3) + 1] or 
     last_pattern[((pattern_step - 3) % 8 ) + 1]],
-    0, 4, 1)
+    0 + xoffset, 4 + yoffset, 1)
   print(keys[
     pattern[((pattern_step - 2)) + 1] or 
     last_pattern[((pattern_step - 2) % 8 ) + 1]],
-    8, 3, 5)
+    8 + xoffset, 3 + yoffset, 5)
   print(keys[
     pattern[((pattern_step - 1)) + 1] or 
     last_pattern[((pattern_step - 1) % 8 ) + 1]],
-    16, 3, 5)
-  print(keys[pattern[(pattern_step % 8) + 1]], 26, 2, 7)
+    16 + xoffset, 3 + yoffset, 5)
+  print(keys[pattern[(pattern_step % 8) + 1]], 26 + xoffset, 2 + yoffset, 7)
   print(keys[
     pattern[((pattern_step + 1)) + 1] or
     next_pattern[((pattern_step + 1) % 8 ) + 1]],
-    36, 3, 5)
+    36 + xoffset, 3 + yoffset, 5)
   print(keys[
     pattern[((pattern_step + 2)) + 1] or
     next_pattern[((pattern_step + 2) % 8 ) + 1]],
-    44, 3, 5)
+    44 + xoffset, 3 + yoffset, 5)
   print(keys[
     pattern[((pattern_step + 3)) + 1] or
     next_pattern[((pattern_step + 3) % 8 ) + 1]],
-    52, 4, 1)
+    52 + xoffset, 4 + yoffset, 1)
 end
 
 function sync_music()
   if (step == 1) music(0)
-end
-
-function distance_between(x1,y1,x2,y2)
-  return sqrt((y2-y1)^2+(x2-x1)^2)
 end
 
 function unpack(t,from,to)
