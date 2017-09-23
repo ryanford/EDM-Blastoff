@@ -110,8 +110,12 @@ function update_time()
 end
 
 function draw_ship()
-  p.sprite[2] = p.x + m_x - 8
-  p.sprite[3] = p.y + m_y
+  local shake = 0
+  if p.power < 2.1 then
+    shake = rnd(2)-1
+  end
+  p.sprite[2] = p.x + m_x + shake - 8
+  p.sprite[3] = p.y + m_y + (3 * (3 - p.power))
   spr(unpack(p.sprite))
 end
 
