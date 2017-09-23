@@ -11,8 +11,9 @@ function _init()
   p.spd=2
   p.sprite={1,p.x,p.y,2,2}
   p.lane=2
-  p.score=3
+  p.power=3
 
+  score=0
   state={}
   -- these defaults below will get removed when menu is made
   state.update=active_update
@@ -49,8 +50,8 @@ function _draw()
 end
 
 function active_update()
-  p.score = min(p.score,3)
-  if p.score <= 0 then
+  p.power = min(p.power,3)
+  if p.power <= 0 then
     gameover()
   end
   sync_music()
@@ -61,6 +62,7 @@ function active_update()
   update_smoke()
   spawn_smoke()
   update_player()
+  update_score()
   check_collisions()
   pattern_input()
   check_missed_beat()
@@ -74,7 +76,7 @@ function active_draw()
   draw_obstacles()
   draw_smoke()
   draw_ship()
-  -- spr(unpack(p.sprite))
+  draw_score()
   draw_pattern()
 end
 
@@ -116,13 +118,11 @@ end
 function update_player()
   if btnp(0) then
     if (p.lane==1) return
-    printh(p.lane)
     p.dir=-1
     p.lane-=1
   end
   if btnp(1) then
     if (p.lane==3) return
-    printh(p.lane)
     p.dir=1
     p.lane+=1
   end
@@ -131,7 +131,9 @@ function update_player()
   else
     p.x += (lanes[p.lane] - p.x) * 0.3
   end
-  -- p.sprite[2]=p.x - 8
+  local forward_level=120-p.power*4
+  if (p.y>forward_level) p.y-=0.5
+  if (p.y<forward_level) p.y+=0.5
 end
 
 function spawn_obstacle()
@@ -236,19 +238,18 @@ function pattern_input()
     if current_step == 2 then
       local sounds = {10, 14, 15}
       sfx(sounds[flr(rnd(#sounds)+1)])
-      p.score += .2
+      p.power+= .2
     else
       pattern_mistake()
     end
     button_pressed = true
     btn_timer = time_now + 1
-    --printh("btnpress "..step)
   end
   if btnp(5) then
     if current_step == 3 then
       local sounds = {11, 13}
       sfx(sounds[flr(rnd(#sounds)+1)])
-      p.score += .2
+      p.power += .2
     else
       pattern_mistake()
     end
@@ -259,7 +260,7 @@ function pattern_input()
     if current_step == 4 then
       local sounds = {16}
       sfx(sounds[flr(rnd(#sounds)+1)])
-      p.score += .2
+      p.power += .2
     else
       pattern_mistake()
     end
@@ -267,13 +268,13 @@ function pattern_input()
     btn_timer = time_now + 1
     --printh("btnpress "..step)
   end
-  p.score = min(p.score,5)
+  p.power = min(p.power,3)
 end
 
 function pattern_mistake()
   shaketimer = 10
   sfx(12)
-  p.score -= 1
+  p.power-= 1
 end
 
 -- these global vars can move elsewhere at some point, but thought it would be 
@@ -362,6 +363,14 @@ function sync_music()
   if loops % 8 == 4 then
     sfx_started = false
   end
+end
+
+function update_score()
+  score+=1*(p.power-1)*dt
+end
+
+function draw_score()
+  print("score: " .. flr(score),0,0,7)
 end
 
 function unpack(t,from,to)
