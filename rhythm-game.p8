@@ -2,6 +2,26 @@ pico-8 cartridge // http://www.pico-8.com
 version 8
 __lua__
 function _init()
+  state={}
+  if active then
+    state.update=active_update
+    state.draw=active_draw
+  else
+    state.update=intro_update
+    state.draw=intro_draw
+  end
+  start_game()
+end
+
+function _update()
+  state.update()
+end
+
+function _draw()
+  state.draw()
+end
+
+function start_game()
   m_x = 0
   m_y = 0
   p={}
@@ -14,10 +34,10 @@ function _init()
   p.power=3
 
   score=0
-  state={}
+  active=false
   -- these defaults below will get removed when menu is made
-  state.update=intro_update
-  state.draw=intro_draw
+  state.update=state.update or intro_update
+  state.draw=state.draw or intro_draw
   timeout=0
   lanes={32,64,96}
   obstacles={}
@@ -42,14 +62,6 @@ function _init()
   next_pattern = {1,2,1,2,3,1,1,2}
   pattern_step = 0
   music_track = 0
-end
-
-function _update()
-  state.update()
-end
-
-function _draw()
-  state.draw()
 end
 
 function intro_update()
@@ -115,6 +127,7 @@ end
 
 function gameover()
   timeout = 0
+  active=true
   state.update=gameover_update
   state.draw=gameover_draw
 end
