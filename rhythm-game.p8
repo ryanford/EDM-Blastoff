@@ -126,13 +126,18 @@ end
 function draw_obstacles()
   for obstacle in all(obstacles) do
     sspr(16,0,32,32,obstacle.x-16,obstacle.y)
+    --[[ collision debugging
+    circ(obstacle.x,obstacle.y+16,14,7)
+    line(obstacle.x,obstacle.y+16,p.x+4,p.y+4,9)
+    --]]
   end
 end
 
 function check_collisions()
   if (#obstacles==0) return
+  printh(#obstacles)
   for obstacle in all(obstacles) do
-    if distance_between(obstacle.x,obstacle.y+16,p.x,p.y+4)<8 then
+    if distance_between(obstacle.x,obstacle.y+16,p.x+4,p.y+4)<16 and obstacle.y>0 then
       for i=#obstacles,1,-1 do
         del(obstacles,obstacles[i])
       end
@@ -191,14 +196,14 @@ function check_missed_beat()
     last_pattern[((pattern_step - 1) % 8 ) + 1]
   if step % 16 == 1 then
     if (last_step == 2 or last_step == 3) and not button_pressed then
-      printh("error "..step)
+      --printh("error "..step)
       sfx(12)
       p.score -=1
     end
     if btn_timer < time_now then
       button_pressed = false
     end
-    printh("btnpress set false ".. step)
+    --printh("btnpress set false ".. step)
   end
 end
 
