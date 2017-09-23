@@ -39,11 +39,10 @@ function _draw()
 end
 
 function active_update()
--- commented game low-score to debug
-  -- p.score = min(p.score,5)
-  -- if p.score <= 0 then
-  --   gameover()
-  -- end
+  p.score = min(p.score,5)
+  if p.score <= 0 then
+    gameover()
+  end
   sync_music()
   update_pattern()
   update_time()
@@ -217,9 +216,6 @@ function pattern_input()
   p.score = min(p.score,5)
 end
 
--- this function sometimes gives false negtives..
--- as in i press a button, but it still gives an error as if i missed it.
--- i think it's a timing issue, but i'm not sure
 -- these global vars can move elsewhere at some point, but thought it would be 
 -- clearer if they were here for now.
 last_step = 1
