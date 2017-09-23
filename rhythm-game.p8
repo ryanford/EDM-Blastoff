@@ -52,7 +52,6 @@ function active_update()
   check_collisions()
   pattern_input()
   check_missed_beat()
-  printh(#obstacles) --collision debugging
 end
 
 function active_draw()
@@ -157,6 +156,8 @@ function pattern_input()
       p.score -= 1
     end
     button_pressed = true
+    btn_timer = time_now + 1
+    printh("btnpress "..step)
   end
   if btnp(5) then
     if current_step == 3 then
@@ -168,28 +169,32 @@ function pattern_input()
       p.score -= 1
     end
     button_pressed = true
+    btn_timer = time_now + 1
+    printh("btnpress "..step)
   end
   p.score = min(p.score,5)
 end
 
--- this function sometimes gives false negtives..
--- as in I press a button, but it still gives an error as if I missed it.
--- I think it's a timing issue, but I'm not sure
 -- these global vars can move elsewhere at some point, but thought it would be 
 -- clearer if they were here for now.
 last_step = 1
 current_step = 1
 button_pressed = false
+btn_timer = 0
 function check_missed_beat()
   last_step = 
     pattern[((pattern_step - 1)) + 1] or 
     last_pattern[((pattern_step - 1) % 8 ) + 1]
   if step % 16 == 1 then
-    if (last_step == 2 or last_step == 3) and not button_pressed then 
+    if (last_step == 2 or last_step == 3) and not button_pressed then
+      printh("error "..step)
       sfx(12)
       p.score -=1
     end
-    button_pressed = false
+    if btn_timer < time_now then
+      button_pressed = false
+    end
+    printh("btnpress set false ".. step)
   end
 end
 
