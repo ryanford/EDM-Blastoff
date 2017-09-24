@@ -554,7 +554,7 @@ function draw_pattern()
   local yoffset = 32 + m_y
   rectfill(xoffset-4, yoffset-2, xoffset + 58, yoffset+12, 0)
   rect(xoffset-4, yoffset-2, xoffset + 58, yoffset+12, 1)
-  rect(22+xoffset,0+yoffset,32+xoffset,8+yoffset,6)
+  rect(24+xoffset,0+yoffset,34+xoffset,8+yoffset,6)
   print(keys[
     pattern[(pattern_step - 3) + 1] or 
     last_pattern[((pattern_step - 3) % 8 ) + 1]],
