@@ -181,6 +181,7 @@ function gameover_update()
   update_time()
   if (btn(5) and timeout>1) _init()
   timeout+=dt
+  p.invuln+=60
 end
 
 function gameover_draw()
