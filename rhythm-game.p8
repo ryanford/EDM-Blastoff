@@ -52,10 +52,12 @@ function start_game()
   fireworks = {}
   prop = {}
   powerups = {}
+  star_colors={1,6,13}
   for i=1,128 do
     add(stars,{
       x = rnd(128),
       y = rnd(128),
+      col = star_colors[flr(rnd(3))+1],
       s = rnd(2)+1
     })
   end
@@ -356,7 +358,7 @@ end
 
 function draw_stars()
   foreach(stars,function(s)
-    pset(s.x + m_x ,s.y + m_y , 1)
+    pset(s.x + m_x ,s.y + m_y , s.col)
   end)
 end
 
@@ -583,7 +585,11 @@ function draw_pattern()
 end
 
 function draw_powermeter()
-  rectfill(33,46,37+(p.power*58/3),47,3)
+  if p.power<=1.5 then
+    rectfill(33,46,37+(p.power*58/3),47,2)
+  else
+    rectfill(33,46,37+(p.power*58/3),47,12)
+  end
 end
 
 loops = 0
@@ -612,7 +618,7 @@ end
 function draw_score()
   print("score: " .. flr(score),0,0,7)
   if streak > 10 then
-    print("streak: " .. streak,0,8,5)
+    print("streak: " .. streak,0,8,1)
   end
 end
 
