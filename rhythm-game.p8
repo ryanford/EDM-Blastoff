@@ -29,8 +29,7 @@ function start_game()
   m_x = 0
   m_y = 0
   p={}
-  p.x=60
-  p.dx=0
+  p.x=66
   p.y=112
   p.dir=0
   p.spd=2
