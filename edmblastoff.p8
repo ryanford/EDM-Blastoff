@@ -306,9 +306,6 @@ function intro_update_ship()
   p.y=44
 end
 
-function collide_powerups()
-end
-
 function spawn_powerup()
   add(powerups,{
     x = lanes[flr(rnd(3))+1],
@@ -316,9 +313,6 @@ function spawn_powerup()
     spd = 1,
     c = 12,
   })
-end
-function timed_powerups()
-
 end
 
 function update_powerups()
@@ -650,7 +644,7 @@ function sync_music()
 end
 
 function update_score()
-  score+=10*(p.power-1)*dt
+  score+=10*max(p.power-1,0)*dt
 end
 
 function draw_score()
