@@ -30,6 +30,7 @@ function start_game()
   m_y = 0
   p={}
   p.x=60
+  p.dx=0
   p.y=112
   p.dir=0
   p.spd=2
@@ -80,13 +81,22 @@ function intro_update()
     state.draw=active_draw
     timeout=0
   end
+  update_time()
   timeout+=1/30
+  update_stars(1)
+  spawn_prop()
+  update_prop()
+  intro_update_ship()
+  p.sprite[3]=90
 end
 
 function intro_draw()
   cls()
-  print_outline("spase gam",48,56,7,0)
+  draw_stars()
+  print_outline("edm blastoff",40,48,12,7)
   print_outline("press x to start",32,64,7,0)
+  draw_prop()
+  draw_ship()
 end
 
 function active_update()
@@ -149,9 +159,6 @@ function active_draw()
   cls()
   screenshake()
   draw_stars()
-  if partymode then
-    draw_party_mode()
-  end
   draw_fireworks()
   draw_powerups()
   draw_obstacles()
@@ -160,6 +167,9 @@ function active_draw()
   draw_ship()
   draw_score()
   draw_pattern()
+  if partymode then
+    draw_party_mode()
+  end
   draw_powermeter()
 end
 
@@ -277,6 +287,11 @@ function update_player()
   local forward_level=120-p.power*4
   if (p.y>forward_level) p.y-=0.5
   if (p.y<forward_level) p.y+=0.5
+end
+
+function intro_update_ship()
+  p.x+=cos(step/128)*2
+  p.y=80
 end
 
 function collide_powerups()
