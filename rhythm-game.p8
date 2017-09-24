@@ -1,7 +1,7 @@
 pico-8 cartridge // http://www.pico-8.com
 version 8
 __lua__
-cartdata("spacerhythmgame")
+cartdata("edmblastoff")
 -- uncomment this shit to get a new high score everytime
 -- dset(0,0)
 function _init()
@@ -67,7 +67,7 @@ function start_game()
   time_now=time()
   dt=0
   step=0
-  keys = {".","","—","”"}
+  keys = {" ","","—","”"}
   pattern_step = 0
   music_track = 0
 end
@@ -98,7 +98,7 @@ function intro_draw()
   draw_stars()
   draw_instructions()
   print_outline("edm blastoff",40,24,12,7)
-  print_outline("press x to start",32,120,0,12)
+  print_outline("press — to start",32,120,0,12)
   draw_prop()
   draw_ship()
 end
@@ -198,7 +198,7 @@ function gameover_draw()
     print("high score: "..highscore,28,80,7)
   end
   if timeout>1 then
-    print_outline("press x to restart",28,92,7,0)
+    print_outline("press — to restart",28,92,7,0)
   end
   draw_fireworks()
 end
