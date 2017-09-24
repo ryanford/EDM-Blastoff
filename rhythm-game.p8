@@ -2,8 +2,6 @@ pico-8 cartridge // http://www.pico-8.com
 version 8
 __lua__
 cartdata("edmblastoff")
--- uncomment this shit to get a new high score everytime
--- dset(0,0)
 function _init()
   highscore = dget(0)
   state={}
@@ -42,7 +40,6 @@ function start_game()
   score=0
   streak=0
   active=false
-  -- these defaults below will get removed when menu is made
   state.update=state.update or intro_update
   state.draw=state.draw or intro_draw
   timeout=0
@@ -67,7 +64,7 @@ function start_game()
   time_now=time()
   dt=0
   step=0
-  keys = {" ","","—","”"}
+  keys = {" ","z","x","u"}
   pattern_step = 0
   music_track = 0
 end
@@ -100,7 +97,7 @@ function intro_draw()
   draw_instructions()
   print_outline("high score: "..highscore,12,80,0,12)
   print_outline("edm blastoff",40,24,12,7)
-  print_outline("press — to start",48,120,0,12)
+  print_outline("press x to start",48,120,0,12)
   draw_ship()
 end
 
@@ -183,7 +180,6 @@ end
 function gameover_draw()
   cls()
   draw_stars()
-  print(step)
   print_outline("game over",28,56,7,0)
   if new_highscore then
     if step % 32 == 8 then
@@ -196,7 +192,8 @@ function gameover_draw()
     print("high score: "..highscore,28,80,7)
   end
   if timeout>1 then
-    print_outline("press — to restart",28,92,7,0)
+    print_outline("press x to restart",28,92,7,0)
+    print_outline("press x to restart",28,92,7,0)
   end
   draw_fireworks()
 end
@@ -236,9 +233,9 @@ end
 function draw_instructions()
   rectfill(12,82,114,120,0)
   rect(12,82,114,122,12)
-  print("....................z", 18,88, 7)
-  print("—....................x", 18,96, 7)
-  print("”...................up", 18,104, 7)
+  print("z....................z", 18,88, 7)
+  print("x....................x", 18,96, 7)
+  print("u...................up", 18,104, 7)
   print("move.........left/right", 18,112, 7)
 
 end
@@ -484,10 +481,10 @@ end
 function distance_between(x1,y1,x2,y2)
   return sqrt((y2-y1)^2+(x2-x1)^2)
 end
-
+last_input=0
 function pattern_input()
   current_step = pattern[pattern_step + 1]
-  if btnp(4) then
+  if btnp(4) and last_input~=pattern_step then
     if current_step == 2 then
       local sounds = {10, 14, 15}
       if music_track == 1 then 
@@ -501,8 +498,9 @@ function pattern_input()
     end
     button_pressed = true
     btn_timer = time_now  + .5
+    last_input=pattern_step
   end
-  if btnp(5) then
+  if btnp(5) and last_input~=pattern_step then
     if current_step == 3 then
       local sounds = {11, 13}
       if music_track == 1 then 
@@ -516,8 +514,9 @@ function pattern_input()
     end
     button_pressed = true
     btn_timer = time_now + .5
+    last_input=pattern_step
   end
-  if btnp(2) then
+  if btnp(2) and last_input~=pattern_step then
     if current_step == 4 then
       local sounds = {16}
       if music_track == 1 then 
@@ -531,6 +530,7 @@ function pattern_input()
     end
     button_pressed = true
     btn_timer = time_now  + .5
+    last_input=pattern_step
   end
   p.power = min(p.power,3)
 end
