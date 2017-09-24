@@ -37,6 +37,7 @@ function start_game()
   p.sprite={1,p.x,p.y,2,2}
   p.lane=2
   p.power=3
+  p.invuln=0
 
   partymode = false
   score=0
@@ -80,6 +81,7 @@ function intro_update()
     state.update=active_update
     state.draw=active_draw
     timeout=0
+    p.invuln+=60
   end
   update_time()
   timeout+=1/30
@@ -230,6 +232,7 @@ function update_time()
   dt=time_now-prev_time
   step+=1
   if (step>128) step=1
+  if (p.invuln>0) p.invuln-=1
 end
 
 function draw_ship()
@@ -239,7 +242,11 @@ function draw_ship()
   end
   p.sprite[2] = p.x + m_x + shake - 8
   p.sprite[3] = p.y + m_y + (3 * (3 - p.power))
-  spr(unpack(p.sprite))
+  if p.invuln>0 and p.invuln%2==0 then
+    return
+  else
+    spr(unpack(p.sprite))
+  end
 end
 
 function spawn_prop()
@@ -526,6 +533,7 @@ function pattern_mistake()
   shaketimer = 10
   sfx(12)
   p.power-= 1
+  if (p.invuln==0) p.invuln+=30
 end
 
 -- these global vars can move elsewhere at some point, but thought it would be 
@@ -535,6 +543,7 @@ current_step = 1
 button_pressed = false
 btn_timer = 0
 function check_missed_beat()
+  if (p.invuln>0) return
   last_step = 
     pattern[((pattern_step - 1)) + 1] or 
     last_pattern[((pattern_step - 1) % 8 ) + 1]
@@ -557,7 +566,9 @@ function update_pattern()
     pattern = next_pattern
     next_pattern = generate_pattern()
   end
-  if (pattern_step == 1) switched_patterns = false
+  -- I changed this from == 1 to > 0
+  -- I think that fixed the changing pattern bug
+  if (pattern_step > 0) switched_patterns = false
 end
 
 function generate_pattern()
