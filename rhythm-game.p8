@@ -528,6 +528,7 @@ function pattern_input()
 end
 
 function pattern_mistake()
+  if (p.invuln>0) return
   powerups = {}
   streak = 0
   shaketimer = 10
