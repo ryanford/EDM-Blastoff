@@ -64,7 +64,7 @@ function start_game()
   time_now=time()
   dt=0
   step=0
-  keys = {" ","z","x","u"}
+  keys = {" ","Ž","—","”"}
   pattern_step = 0
   music_track = 0
 end
@@ -95,9 +95,9 @@ function intro_draw()
   draw_stars()
   draw_prop()
   draw_instructions()
-  print_outline("high score: "..highscore,12,80,0,12)
-  print_outline("edm blastoff",40,24,12,7)
-  print_outline("press x to start",48,120,0,12)
+  print_outline("high score: "..highscore,nil,80,0,12)
+  print_outline("edm blastoff",nil,24,12,7)
+  print_outline("press — to start",nil,120,0,12,3)
   draw_ship()
 end
 
@@ -180,20 +180,20 @@ end
 function gameover_draw()
   cls()
   draw_stars()
-  print_outline("game over",28,56,7,0)
+  print_outline("game over",nil,56,7,0)
   if new_highscore then
     if step % 32 == 8 then
       spawn_fireworks(rnd(120) + 4, rnd(32))
     end
-    print_outline("new high score!!!",28,68, 12, 0)
-    print_outline("score: "..flr(score),28,80,12, 0)
+    print_outline("new high score!!!",nil,68, 12, 0)
+    print_outline("score: "..flr(score),nil,80,12, 0)
   else
-    print("score: "..flr(score),28,68,7)
-    print("high score: "..highscore,28,80,7)
+    print("score: "..flr(score),center_text("score: " .. flr(score)),68,7)
+    print("high score: "..highscore,center_text("high score: " .. highscore),80,7)
   end
   if timeout>1 then
-    print_outline("press x to restart",28,92,7,0)
-    print_outline("press x to restart",28,92,7,0)
+    print_outline("press — to restart",nil,92,7,0,3)
+    print_outline("press — to restart",nil,92,7,0,3)
   end
   draw_fireworks()
 end
@@ -233,9 +233,9 @@ end
 function draw_instructions()
   rectfill(12,82,114,120,0)
   rect(12,82,114,122,12)
-  print("z....................z", 18,88, 7)
-  print("x....................x", 18,96, 7)
-  print("u...................up", 18,104, 7)
+  print("Ž....................z", 18,88, 7)
+  print("—....................x", 18,96, 7)
+  print("”...................up", 18,104, 7)
   print("move.........left/right", 18,112, 7)
 
 end
@@ -660,7 +660,8 @@ function draw_score()
   end
 end
 
-function print_outline(string, x, y, color1, color2)
+function print_outline(string, x, y, color1, color2,glyph)
+  x=x or center_text(string,glyph)
   print(string, x-1, y+1, color1)
   print(string, x-1, y, color1)
   print(string, x-1, y-1, color1)
@@ -670,6 +671,10 @@ function print_outline(string, x, y, color1, color2)
   print(string, x+1, y-1, color1)
   print(string, x+1, y, color1)
   print(string, x, y, color2)
+end
+
+function center_text(str,glyph)
+  return 64-flr(#str*4)/2-(glyph or 0)
 end
 
 function unpack(t,from,to)
