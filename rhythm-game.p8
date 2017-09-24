@@ -68,9 +68,6 @@ function start_game()
   dt=0
   step=0
   keys = {".","z","x","u"}
-  last_pattern = {1,1,1,1,1,1,1,1}
-  pattern = {1,1,2,1,1,1,3,4}
-  next_pattern = {1,2,1,2,3,1,1,2}
   pattern_step = 0
   music_track = 0
 end
@@ -81,8 +78,13 @@ function intro_update()
     state.draw=active_draw
     timeout=0
     p.invuln+=60
+    last_pattern = {1,1,1,1,1,1,1,1}
+    pattern = {1,1,1,1,2,1,1,1}
+    next_pattern = {3,1,1,1,4,1,1,1}
+    step = 128
   end
   update_time()
+  sync_music()
   timeout+=1/30
   update_stars(1)
   spawn_prop()
@@ -181,6 +183,10 @@ function gameover_update()
   if (btn(5) and timeout>1) _init()
   timeout+=dt
   p.invuln+=60
+    last_pattern = {1,1,1,1,1,1,1,1}
+    pattern = {1,1,1,1,2,1,1,1}
+    next_pattern = {3,1,1,1,4,1,1,1}
+    step = 128
 end
 
 function gameover_draw()
@@ -573,6 +579,9 @@ function update_pattern()
 end
 
 function generate_pattern()
+  if score < 400 then
+    return {1,1,2,1,flr(rnd(4)+1),1,2,1}
+  end
   return {1,2,1,flr(rnd(4)+1),1,flr(rnd(3)+1),2,3}
 end
 
