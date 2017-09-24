@@ -96,10 +96,11 @@ end
 function intro_draw()
   cls()
   draw_stars()
-  draw_instructions()
-  print_outline("edm blastoff",40,24,12,7)
-  print_outline("press — to start",32,120,0,12)
   draw_prop()
+  draw_instructions()
+  print_outline("high score: "..highscore,12,80,0,12)
+  print_outline("edm blastoff",40,24,12,7)
+  print_outline("press — to start",48,120,0,12)
   draw_ship()
 end
 
@@ -177,15 +178,12 @@ function gameover_update()
   if (btn(5) and timeout>1) _init()
   timeout+=dt
   p.invuln+=60
-    last_pattern = {1,1,1,1,1,1,1,1}
-    pattern = {1,1,1,1,2,1,1,1}
-    next_pattern = {1,1,1,1,4,1,1,1}
-    step = 128
 end
 
 function gameover_draw()
   cls()
   draw_stars()
+  print(step)
   print_outline("game over",28,56,7,0)
   if new_highscore then
     if step % 32 == 8 then
@@ -236,8 +234,8 @@ function update_time()
 end
 
 function draw_instructions()
-  rectfill(12,84,114,120,0)
-  rect(12,84,114,122,12)
+  rectfill(12,82,114,120,0)
+  rect(12,82,114,122,12)
   print("Ž....................z", 18,88, 7)
   print("—....................x", 18,96, 7)
   print("”...................up", 18,104, 7)
