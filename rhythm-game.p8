@@ -182,8 +182,8 @@ function gameover_draw()
     print_outline("new high score!!!",28,68, 12, 0)
     print_outline("score: "..flr(score),28,80,12, 0)
   else
-    print_outline("score: "..flr(score),28,68,7, 0)
-    print_outline("high score: "..highscore,28,80,7, 0)
+    print("score: "..flr(score),28,68,7)
+    print("high score: "..highscore,28,80,7)
   end
   if timeout>1 then
     print_outline("press x to restart",28,92,7,0)
