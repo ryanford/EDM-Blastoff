@@ -618,7 +618,7 @@ end
 function draw_score()
   print("score: " .. flr(score),0,0,7)
   if streak > 10 then
-    print("streak: " .. streak,0,8,1)
+    print("streak: " .. streak,0,8,12)
   end
 end
 
