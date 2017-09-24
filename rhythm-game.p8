@@ -80,7 +80,7 @@ function intro_update()
     p.invuln+=60
     last_pattern = {1,1,1,1,1,1,1,1}
     pattern = {1,1,1,1,2,1,1,1}
-    next_pattern = {3,1,1,1,4,1,1,1}
+    next_pattern = {1,1,2,1,3,1,1,1}
     step = 128
   end
   update_time()
@@ -185,7 +185,7 @@ function gameover_update()
   p.invuln+=60
     last_pattern = {1,1,1,1,1,1,1,1}
     pattern = {1,1,1,1,2,1,1,1}
-    next_pattern = {3,1,1,1,4,1,1,1}
+    next_pattern = {1,1,1,1,4,1,1,1}
     step = 128
 end
 
@@ -550,7 +550,7 @@ current_step = 1
 button_pressed = false
 btn_timer = 0
 function check_missed_beat()
-  if (p.invuln>0) return
+  -- if (p.invuln>0) return
   last_step = 
     pattern[((pattern_step - 1)) + 1] or 
     last_pattern[((pattern_step - 1) % 8 ) + 1]
