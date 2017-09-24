@@ -67,7 +67,7 @@ function start_game()
   time_now=time()
   dt=0
   step=0
-  keys = {".","z","x","u"}
+  keys = {".","Ž","—","”"}
   pattern_step = 0
   music_track = 0
 end
@@ -96,8 +96,9 @@ end
 function intro_draw()
   cls()
   draw_stars()
-  print_outline("edm blastoff",40,48,12,7)
-  print_outline("press x to start",32,64,7,0)
+  draw_instructions()
+  print_outline("edm blastoff",40,24,12,7)
+  print_outline("press x to start",32,120,0,12)
   draw_prop()
   draw_ship()
 end
@@ -107,13 +108,6 @@ function active_update()
   if p.power <= 0 then
     gameover()
   end
-  -- if step % 32 == 8 and streak > 25 then
-  --   spawn_fireworks(rnd(120) + 4, rnd(32))
-  -- end
-  -- if step % 128 == 1 then
-  --   spawn_powerup()
-  -- end
-
   party_mode()
   update_powerups()
   sync_music()
@@ -241,6 +235,16 @@ function update_time()
   if (p.invuln>0) p.invuln-=1
 end
 
+function draw_instructions()
+  rectfill(12,84,114,120,0)
+  rect(12,84,114,122,12)
+  print("Ž....................z", 18,88, 7)
+  print("—....................x", 18,96, 7)
+  print("”...................up", 18,104, 7)
+  print("move.........left/right", 18,112, 7)
+
+end
+
 function draw_ship()
   local shake = 0
   if p.power < 2.1 then
@@ -299,12 +303,12 @@ function update_player()
   end
   local forward_level=120-p.power*4
   if (p.y>forward_level) p.y-=0.5
-  if (p.y<forward_level) p.y+=0.5
+  if (p.y<forward_level) p.y+=2.5
 end
 
 function intro_update_ship()
   p.x+=cos(step/128)*2
-  p.y=80
+  p.y=44
 end
 
 function collide_powerups()
@@ -573,8 +577,8 @@ function update_pattern()
     pattern = next_pattern
     next_pattern = generate_pattern()
   end
-  -- I changed this from == 1 to > 0
-  -- I think that fixed the changing pattern bug
+  -- i changed this from == 1 to > 0
+  -- i think that fixed the changing pattern bug
   if (pattern_step > 0) switched_patterns = false
 end
 
