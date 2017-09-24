@@ -1,4 +1,4 @@
-### Unnamed Space Game
+### EDM Blastoff
 
 Entry for [Music Game Jam](https://itch.io/jam/musicgamejam)
 
