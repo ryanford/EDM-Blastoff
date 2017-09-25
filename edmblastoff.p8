@@ -6,7 +6,19 @@ function _init()
   highscore = {}
   highscore.kscore=dget(0)
   highscore.hscore=dget(1)
-  highscore.display=dget(2)
+  highscore.display=""
+  if highscore.kscore>0 then
+    highscore.display=highscore.display .. highscore.kscore
+  end
+  if highscore.kscore>0 then
+    if highscore.hscore<100 then
+      highscore.display=highscore.display .. 0
+      if highscore.hscore<10 then
+        highscore.display=highscore.display .. 0
+      end  
+    end  
+  end
+  highscore.display=highscore.display .. flr(highscore.hscore)
   state={}
   if active then
     state.update=active_update
@@ -207,14 +219,12 @@ end
 function gameover()
   sfx(32)
   new_highscore = false
-  if highscore.kscore < score.kscore and highscore.hscore > score.hscore then
-    for key,value in pairs(highscore) do
-      highscore[key]=score[key]
-    end
+  if highscore.kscore < score.kscore or (highscore.kscore==score.kscore and highscore.hscore<score.hscore) then
+    highscore.kscore=score.kscore
+    highscore.hscore=flr(score.hscore)
     new_highscore = true
-    dset(0,highscore.kscore)
-    dset(1,highscore.hscore)
-    dset(2,highscore.display)
+    dset(0,score.kscore)
+    dset(1,flr(score.hscore))
   end
   timeout = 0
   active=true
@@ -661,13 +671,15 @@ function update_score()
     score.hscore-=flr((score.hscore/1000)*1000)
   end
   if score.kscore>0 then
-    score.display='' .. score.kscore
-  end
-  if score.kscore > 0 and score.hscore < 100 then
-    score.display=score.display..'0'
+    score.display='' .. score.kscore    
+    if score.hscore < 100 then
+      score.display=score.display..'0'
+    end
+    if score.hscore<10 then
+      score.display=score.display..'0'
+    end
   end
   score.display=score.display..flr(score.hscore)
-  printh("k: " .. score.kscore .. " h: " .. flr(score.hscore) .. " v: " .. score.display)
 end
 
 function draw_score()
