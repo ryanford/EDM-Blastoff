@@ -3,7 +3,10 @@ version 8
 __lua__
 cartdata("edmblastoff")
 function _init()
-  highscore = dget(0)
+  highscore = {}
+  highscore.kscore=dget(0)
+  highscore.hscore=dget(1)
+  highscore.display=dget(2)
   state={}
   if active then
     state.update=active_update
@@ -37,7 +40,10 @@ function start_game()
   p.invuln=0
 
   partymode = false
-  score=0
+  score={}
+  score.hscore=0
+  score.kscore=0
+  score.display=''
   streak=0
   active=false
   state.update=state.update or intro_update
@@ -95,7 +101,7 @@ function intro_draw()
   draw_stars()
   draw_prop()
   draw_instructions()
-  print_outline("high score: "..highscore,nil,80,0,12)
+  print_outline("high score: "..highscore.display,nil,80,0,12)
   print_outline("edm blastoff",nil,24,12,7)
   print_outline("press — to start",nil,120,0,12,3)
   draw_ship()
@@ -118,12 +124,12 @@ function active_update()
   update_player()
   spawn_prop()
   update_prop()
-  update_score()
   check_collisions()
   pattern_input()
   check_missed_beat()
   update_fireworks()
   update_stars(p.power/2)
+  update_score()
 end
 
 function party_mode()
@@ -186,10 +192,10 @@ function gameover_draw()
       spawn_fireworks(rnd(120) + 4, rnd(32))
     end
     print_outline("new high score!!!",nil,68, 12, 0)
-    print_outline("score: "..flr(score),nil,80,12, 0)
+    print_outline("score: "..score.display,nil,80,12, 0)
   else
-    print("score: "..flr(score),center_text("score: " .. flr(score)),68,7)
-    print("high score: "..highscore,center_text("high score: " .. highscore),80,7)
+    print("score: "..score.display,center_text("score: " .. score.display),68,7)
+    print("high score: "..highscore.display,center_text("high score: " .. highscore.display),80,7)
   end
   if timeout>1 then
     print_outline("press — to restart",nil,92,7,0,3)
@@ -201,10 +207,14 @@ end
 function gameover()
   sfx(32)
   new_highscore = false
-  if highscore < score then
-    highscore = flr(score)
+  if highscore.kscore < score.kscore and highscore.hscore > score.hscore then
+    for key,value in pairs(highscore) do
+      highscore[key]=score[key]
+    end
     new_highscore = true
-    dset(0,highscore)
+    dset(0,highscore.kscore)
+    dset(1,highscore.hscore)
+    dset(2,highscore.display)
   end
   timeout = 0
   active=true
@@ -456,7 +466,7 @@ function check_collisions()
   if (#obstacles==0 and #powerups==0) return
   foreach(powerups,function(pup)
     if distance_between(pup.x,pup.y,p.x+4,p.y+16) < 16 and pup.y > 0then
-      score += 1000
+      score.kscore += 1
       sfx(33)
       spawn_fireworks(pup.x,pup.y,100)
       del(powerups,pup)
@@ -575,7 +585,7 @@ function update_pattern()
 end
 
 function generate_pattern()
-  if score < 400 then
+  if score.hscore < 400 and score.kscore < 1 then
     return {1,1,2,1,flr(rnd(4)+1),1,2,1}
   end
   return {1,2,1,flr(rnd(4)+1),1,flr(rnd(3)+1),2,3}
@@ -644,11 +654,24 @@ function sync_music()
 end
 
 function update_score()
-  score+=10*max(p.power-1,0)*dt
+  score.display=''
+  score.hscore+=10*max(p.power-1,0)*dt
+  if score.hscore>1000 then
+    score.kscore+=flr(score.hscore/1000)
+    score.hscore-=flr((score.hscore/1000)*1000)
+  end
+  if score.kscore>0 then
+    score.display='' .. score.kscore
+  end
+  if score.kscore > 0 and score.hscore < 100 then
+    score.display=score.display..'0'
+  end
+  score.display=score.display..flr(score.hscore)
+  printh("k: " .. score.kscore .. " h: " .. flr(score.hscore) .. " v: " .. score.display)
 end
 
 function draw_score()
-  print("score: " .. flr(score),0,0,7)
+  print("score: " .. score.display,0,0,7)
   if streak > 10 then
     print("streak: " .. streak,0,8,12)
   end
